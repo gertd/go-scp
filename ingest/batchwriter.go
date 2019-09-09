@@ -36,6 +36,7 @@ func (bw *BatchWriter) Run() {
 
 				if err := bw.client.IngestEvents(&b.events); err != nil {
 					log.Printf("BatchWriter error IngestEvents %s", err.Error())
+					bw.quit <- true
 				}
 
 			} else {
