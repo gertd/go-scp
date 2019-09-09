@@ -1,7 +1,6 @@
 package scp
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -72,14 +71,6 @@ func track(msg string) (string, time.Time) {
 
 func duration(msg string, start time.Time) {
 	log.Printf("%v: %v\n", msg, time.Since(start))
-}
-
-func pp(v interface{}) string {
-	b, err := json.MarshalIndent(v, "", " ")
-	if err != nil {
-		return ""
-	}
-	return string(b)
 }
 
 func init() {

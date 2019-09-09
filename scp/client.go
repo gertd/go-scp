@@ -20,7 +20,7 @@ type Client struct {
 	Service     *sdk.Client
 }
 
-// NewClient -- create SCP client using client id & secret
+// NewClient -- create SCP client using TokenSource (client ID & secret)
 func NewClient(tenant, clientID, clientSecret string) *Client {
 
 	clientConfig := clientcredentials.Config{
@@ -36,11 +36,7 @@ func NewClient(tenant, clientID, clientSecret string) *Client {
 
 	token, _ := c.TokenSource.Token()
 
-	// tr := idp.TokenRetriever{}
-	// ctx := idp.Context{}
-
 	c.Service, _ = sdk.NewClient(&services.Config{
-		//TokenRetriever: tr,
 		Tenant: tenant,
 		Token:  token.AccessToken,
 	})
