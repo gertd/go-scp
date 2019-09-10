@@ -16,6 +16,7 @@ const (
 
 // Client --
 type Client struct {
+	Tenant      string
 	TokenSource oauth2.TokenSource
 	Service     *sdk.Client
 }
@@ -31,15 +32,27 @@ func NewClient(tenant, clientID, clientSecret string) *Client {
 	}
 
 	c := Client{
+		Tenant:      tenant,
 		TokenSource: clientConfig.TokenSource(context.Background()),
 	}
 
-	token, _ := c.TokenSource.Token()
+	return &c
+}
 
-	c.Service, _ = sdk.NewClient(&services.Config{
-		Tenant: tenant,
+// Authenticate --
+func (c *Client) Authenticate() error {
+
+	token, err := c.TokenSource.Token()
+	if err != nil {
+		return err
+	}
+
+	c.Service, err = sdk.NewClient(&services.Config{
+		Tenant: c.Tenant,
 		Token:  token.AccessToken,
 	})
-
-	return &c
+	if err != nil {
+		return err
+	}
+	return nil
 }

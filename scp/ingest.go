@@ -48,7 +48,7 @@ func (c *Client) IngestEvents(events *[]ingest.Event) error {
 
 		_, err := c.Service.IngestService.PostEvents(*events, &resp)
 		if err != nil {
-			log.Printf("PostEvents err %d %s\n", resp.StatusCode, resp.Status)
+			log.Printf("PostEvents %s (%d)\n", resp.Status, resp.StatusCode)
 		}
 
 		s := resp.StatusCode
