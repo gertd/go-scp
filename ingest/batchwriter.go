@@ -31,15 +31,13 @@ func (bw *BatchWriter) Run() {
 		select {
 		case b, ok := <-bw.batches:
 			if ok {
-				atomic.AddInt64(&bw.totalBatches, int64(1))
 				log.Printf("BatchWriter write batch %d size %d", len(b.events), b.batchSize)
-
 				if err := bw.client.IngestEvents(&b.events); err != nil {
 					log.Printf("BatchWriter error IngestEvents %s", err.Error())
 					bw.quit <- true
 					return
 				}
-
+				atomic.AddInt64(&bw.totalBatches, int64(1))
 			} else {
 				log.Printf("BatchWriter batches channel closed")
 				return
