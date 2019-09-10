@@ -15,6 +15,13 @@ type Producer struct {
 	quit   chan bool
 }
 
+// Properties -- settabble event properties
+type Properties struct {
+	Host       *string
+	Source     *string
+	Sourcetype *string
+}
+
 // Events -- outgoing event channel
 func (ep *Producer) Events() <-chan ingest.Event {
 	return ep.events
@@ -30,7 +37,7 @@ func NewEventsProducerJSON(quit chan bool) *Producer {
 }
 
 // Run --
-func (ep *Producer) Run(r io.Reader) {
+func (ep *Producer) Run(r io.Reader, p Properties) {
 
 	defer close(ep.events)
 
@@ -49,12 +56,12 @@ func (ep *Producer) Run(r io.Reader) {
 		ns := int32(0)
 
 		event := ingest.Event{
-			// Host:       &b.config.hostname,
-			// Source:     &b.config.source,
-			// Sourcetype: &b.config.sourcetype,
-			Timestamp: &ts,
-			Nanos:     &ns,
-			Body:      body,
+			Host:       p.Host,
+			Source:     p.Source,
+			Sourcetype: p.Sourcetype,
+			Timestamp:  &ts,
+			Nanos:      &ns,
+			Body:       body,
 		}
 
 		select {
