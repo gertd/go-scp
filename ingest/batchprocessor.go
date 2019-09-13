@@ -108,9 +108,8 @@ func (bp *BatchProcessor) TotalByteSize() int64 {
 
 // eventSize -- determine byte size of ingest.Event instace, returns math.MaxInt64 on error
 func eventSize(e ingest.Event) int64 {
-	if b, err := json.Marshal(e); err != nil {
-		return math.MaxInt64
-	} else {
+	if b, err := json.Marshal(e); err == nil {
 		return int64(len(b))
 	}
+	return math.MaxInt64
 }
