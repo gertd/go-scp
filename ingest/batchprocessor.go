@@ -69,6 +69,11 @@ func (bp *BatchProcessor) Run() {
 					batch.Add(e, eventSize)
 				}
 			} else {
+				if len(batch.events) > 0 {
+					log.Printf("BatchProcessor closed induced batch send count %d size %d", len(batch.events), batch.batchSize)
+					bp.batches <- *batch
+					batch = NewEventBatch()
+				}
 				log.Printf("BatchProcessor events channel closed")
 				return
 			}
