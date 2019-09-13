@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/splunk/splunk-cloud-sdk-go/services/ingest"
-	"gitlab.com/d5s/go-scp/events"
+	"github.com/gertd/go-scp/events"
 )
 
 // Producer -- event producer

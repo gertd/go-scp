@@ -1,4 +1,4 @@
-module gitlab.com/d5s/go-scp
+module github.com/gertd/go-scp
 
 go 1.12
 

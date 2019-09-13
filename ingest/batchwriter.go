@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync/atomic"
 
-	"gitlab.com/d5s/go-scp/scp"
+	"github.com/gertd/go-scp/scp"
 )
 
 // BatchWriter -- writes batch of events to target
