@@ -30,7 +30,7 @@ func (c *Client) IngestEvents(events *[]ingest.Event) error {
 	defer duration(track("IngestEvents"))
 
 	if events == nil {
-		return fmt.Errorf("e nil pointer")
+		return fmt.Errorf("events nil pointer")
 	}
 
 	token, err := c.TokenSource.Token()
@@ -70,7 +70,7 @@ func track(msg string) (string, time.Time) {
 }
 
 func duration(msg string, start time.Time) {
-	log.Printf("%v: %v\n", msg, time.Since(start))
+	log.Printf("%s: %s\n", msg, time.Since(start))
 }
 
 func init() {

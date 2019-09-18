@@ -1,6 +1,7 @@
 package json
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -12,16 +13,16 @@ import (
 
 // Producer -- event producer
 type producer struct {
+	ctx    context.Context
 	events chan ingest.Event
-	quit   chan bool
 }
 
 // NewEventsProducer -- construct new JSON even producer
-func NewEventsProducer(quit chan bool) events.Producer {
+func NewEventsProducer(ctx context.Context) events.Producer {
 
 	return producer{
+		ctx:    ctx,
 		events: make(chan ingest.Event),
-		quit:   quit,
 	}
 }
 
@@ -60,7 +61,7 @@ func (ep producer) Run(r io.Reader, p events.Properties) {
 
 		select {
 		case ep.events <- event:
-		case <-ep.quit:
+		case <-ep.ctx.Done():
 			return
 		}
 	}

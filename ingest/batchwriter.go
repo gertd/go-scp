@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"context"
 	"log"
 	"sync/atomic"
 
@@ -9,18 +10,18 @@ import (
 
 // BatchWriter -- writes batch of events to target
 type BatchWriter struct {
+	ctx          context.Context
 	client       *scp.Client
 	batches      <-chan EventBatch
-	quit         chan bool
 	totalBatches int64
 }
 
 // NewBatchWriter --
-func NewBatchWriter(client *scp.Client, batches <-chan EventBatch, quit chan bool) *BatchWriter {
+func NewBatchWriter(ctx context.Context, client *scp.Client, batches <-chan EventBatch) *BatchWriter {
 	return &BatchWriter{
+		ctx:     ctx,
 		client:  client,
 		batches: batches,
-		quit:    quit,
 	}
 }
 
@@ -34,7 +35,8 @@ func (bw *BatchWriter) Run() {
 				log.Printf("BatchWriter write batch %d size %d", len(b.events), b.batchSize)
 				if err := bw.client.IngestEvents(&b.events); err != nil {
 					log.Printf("BatchWriter error IngestEvents %s", err.Error())
-					bw.quit <- true
+					_, cancel := context.WithCancel(bw.ctx)
+					cancel()
 					return
 				}
 				atomic.AddInt64(&bw.totalBatches, int64(1))
@@ -42,7 +44,7 @@ func (bw *BatchWriter) Run() {
 				log.Printf("BatchWriter batches channel closed")
 				return
 			}
-		case <-bw.quit:
+		case <-bw.ctx.Done():
 			return
 		}
 	}

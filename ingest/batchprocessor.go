@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"math"
@@ -18,20 +19,20 @@ const (
 
 // BatchProcessor -- consumer-producer, consumes events, produces batches
 type BatchProcessor struct {
+	ctx           context.Context
 	events        <-chan ingest.Event
 	batches       chan EventBatch
-	quit          chan bool
 	totalEvents   int64
 	totalByteSize int64
 	totalTime     time.Duration
 }
 
 // NewBatchProcessor --
-func NewBatchProcessor(events <-chan ingest.Event, quit chan bool) *BatchProcessor {
+func NewBatchProcessor(ctx context.Context, events <-chan ingest.Event) *BatchProcessor {
 	return &BatchProcessor{
+		ctx:     ctx,
 		events:  events,
 		batches: make(chan EventBatch),
-		quit:    quit,
 	}
 }
 
@@ -85,7 +86,7 @@ func (bp *BatchProcessor) Run() {
 				batch = NewEventBatch()
 			}
 
-		case <-bp.quit:
+		case <-bp.ctx.Done():
 			if len(batch.events) > 0 {
 				log.Printf("BatchProcessor done induced batch send count %d size %d", len(batch.events), batch.batchSize)
 				bp.batches <- *batch
