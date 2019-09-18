@@ -15,14 +15,18 @@ import (
 type producer struct {
 	ctx    context.Context
 	events chan ingest.Event
+	props  events.Properties
+	reader io.Reader
 }
 
 // NewEventsProducer -- construct new CSV even producer
-func NewEventsProducer(ctx context.Context) events.Producer {
+func NewEventsProducer(ctx context.Context, r io.Reader, p events.Properties) events.Producer {
 
 	return producer{
 		ctx:    ctx,
 		events: make(chan ingest.Event),
+		props:  p,
+		reader: r,
 	}
 }
 
@@ -32,11 +36,11 @@ func (ep producer) Events() <-chan ingest.Event {
 }
 
 // Run --
-func (ep producer) Run(r io.Reader, p events.Properties) {
+func (ep producer) Run() {
 
 	defer close(ep.events)
 
-	rdr := csv.NewReader(r)
+	rdr := csv.NewReader(ep.reader)
 	rdr.ReuseRecord = true
 
 	record, err := rdr.Read()
@@ -66,9 +70,9 @@ func (ep producer) Run(r io.Reader, p events.Properties) {
 		ns := int32(0)
 
 		event := ingest.Event{
-			Host:       p.Host,
-			Source:     p.Source,
-			Sourcetype: p.Sourcetype,
+			Host:       ep.props.Host,
+			Source:     ep.props.Source,
+			Sourcetype: ep.props.Sourcetype,
 			Timestamp:  &ts,
 			Nanos:      &ns,
 			Body:       body,
